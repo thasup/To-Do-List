@@ -16,12 +16,12 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-let items = ["Buy Food", "Cook Food", "Eat Food"];
-let workItems = [];
+const items = ["Buy Food", "Cook Food", "Eat Food"];
+const workItems = [];
 
 app.get("/", (req, res) => {
 
-    let day = date.getDate();
+    const day = date.getDate();
 
     res.render("list", {
         listTitle: day,

@@ -7,6 +7,7 @@ app.set("view engine", "ejs");
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
+app.use(express.static("public"));
 
 const port = 3000;
 
@@ -14,8 +15,9 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
+let items = ["Buy Food", "Cook Food", "Eat Food"];
+
 app.get("/", (req, res) => {
-    // res.sendFile(`${__dirname}`)
 
     let today = new Date();
     let currentDay = today.getDay();
@@ -29,6 +31,15 @@ app.get("/", (req, res) => {
     let day = today.toLocaleDateString("en-US", options);
 
     res.render("list", {
-        ejsDay: day
+        ejsDay: day,
+        newListItems: items
     });
+});
+
+app.post("/", (req, res) => {
+    const item = req.body.newItem;
+    items.push(item);
+    console.log(item);
+
+    res.redirect("/");
 });

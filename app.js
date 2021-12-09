@@ -16,6 +16,7 @@ app.listen(port, () => {
 });
 
 let items = ["Buy Food", "Cook Food", "Eat Food"];
+let workItems = [];
 
 app.get("/", (req, res) => {
 
@@ -31,15 +32,35 @@ app.get("/", (req, res) => {
     let day = today.toLocaleDateString("en-US", options);
 
     res.render("list", {
-        ejsDay: day,
+        listTitle: day,
         newListItems: items
     });
 });
 
 app.post("/", (req, res) => {
     const item = req.body.newItem;
-    items.push(item);
     console.log(item);
 
-    res.redirect("/");
+    if (req.body.list === "Work") {
+        workItems.push(item)
+        res.redirect("/work");
+    } else {
+        items.push(item);
+        res.redirect("/");
+    }
+});
+
+app.get("/work", (req, res) => {
+    res.render("list", {
+        listTitle: "Work List",
+        newListItems: workItems
+    });
+});
+
+app.post("/work", (req, res) => {
+    const item = req.body.newItem;
+    workItems.push(item);
+    console.log(item);
+
+    res.redirect("/work");
 });

@@ -40,7 +40,7 @@ const Item = mongoose.model("Item", itemSchema);
 
 // Add default items
 const item1 = new Item ({
-    name: "Welcome to yuor To-Do-List!"
+    name: "Welcome to your To-Do-List!"
 });
 const item2 = new Item ({
     name: "Hit the + button to add a new item."
@@ -51,39 +51,69 @@ const item3 = new Item ({
 
 const defaultItems = [item1, item2, item3];
 
-// Add data on database
-Item.insertMany(defaultItems, (err) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("successfully saved!");
-        mongoose.connection.close();
-    }
-});
+// Find data on database
+// Item.find((err, items) => {
+//     if(err) {
+//         console.log(err);
+//     } else {
+//         items.forEach((item) => {
+//             console.log(item);
+//         });
+//         mongoose.connection.close();
+//     }
+// });
 
 // GET route for root
 app.get("/", (req, res) => {
+    Item.find({}, (err, foundItems) => {
+        if (foundItems.length === 0) {
+            // Add data on database
+            Item.insertMany(defaultItems, (err) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("successfully saved!");
+                    // mongoose.connection.close();
+                }
+            });
+            res.redirect("/");
+        } else {
+            const day = date.getDate();
+            // mongoose.connection.close();
 
-    const day = date.getDate();
-
-    res.render("list", {
-        listTitle: day,
-        newListItems: items
+            res.render("list", {
+                listTitle: day,
+                newListItems: foundItems
+            });
+        };
     });
 });
 
 // POST route for retrieve input data from request
 app.post("/", (req, res) => {
-    const item = req.body.newItem;
-    console.log(item);
+    const itemName = req.body.newItem;
+    // console.log(item);
 
-    if (req.body.list === "Work") {
-        workItems.push(item)
-        res.redirect("/work");
-    } else {
-        items.push(item);
-        res.redirect("/");
-    }
+    const item = new Item({
+        name: itemName
+    });
+
+    item.save();
+
+    res.redirect("/");
+});
+
+app.post("/delete", (req, res) => {
+    const cheackDeleted = req.body.del;
+
+    Item.findByIdAndRemove(cheackDeleted, (err) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(`Successfully delete id:${cheackDeleted} task.`);
+            res.redirect("/");
+        }
+    });
 });
 
 // GET route for another list

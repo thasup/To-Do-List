@@ -35,8 +35,15 @@ const itemSchema = new mongoose.Schema({
     }
 });
 
+// Create List module schema
+const listSchema = new mongoose.Schema({
+    name: String,
+    items: [itemSchema]
+});
+
 // Create module
 const Item = mongoose.model("Item", itemSchema);
+const List = mongoose.model("List", listSchema);
 
 // Add default items
 const item1 = new Item ({
@@ -65,6 +72,8 @@ const defaultItems = [item1, item2, item3];
 
 // GET route for root
 app.get("/", (req, res) => {
+
+    // Find all on database and return an array
     Item.find({}, (err, foundItems) => {
         if (foundItems.length === 0) {
             // Add data on database
@@ -116,21 +125,38 @@ app.post("/delete", (req, res) => {
     });
 });
 
-// GET route for another list
-app.get("/work", (req, res) => {
-    res.render("list", {
-        listTitle: "Work List",
-        newListItems: workItems
+app.get("/:newList", (req, res) => {
+    const customListName = req.params.newList;
+
+    // Find only one on database and return one obj
+    List.findOne({name: customListName}, (err, foundLists) => {
+        if (!err) {
+            if (!foundLists) {
+                // Create a new list
+                console.log("Doesn't exist!");
+
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems
+                });
+            
+                list.save();
+                res.redirect(`/${customListName}`)
+            } else {
+                // Show an existing list
+                console.log("Exist!");
+
+                res.render("list", {
+                    listTitle: foundLists.name,
+                    newListItems: foundLists.items
+                });
+            }
+        };
     });
-});
 
-// POST route for retrieve input data from request
-app.post("/work", (req, res) => {
-    const item = req.body.newItem;
-    workItems.push(item);
-    console.log(item);
+    
 
-    res.redirect("/work");
+    
 });
 
 // GET route for about page

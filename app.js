@@ -21,7 +21,7 @@ app.use(express.static("public"));
 const password = process.env.MONGODB_PASSWORD;
 main().catch(err => console.log(err));
 async function main() {
-  await mongoose.connect(`mongodb+srv://admin-first:${password}@cluster0.hi5zx.mongodb.net/todolistDB`);
+  await mongoose.connect(`mongodb+srv://admin-first:88888888@cluster0.hi5zx.mongodb.net/todolistDB`);
 };
 
 // Defines the port number

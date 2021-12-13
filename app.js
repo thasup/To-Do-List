@@ -4,6 +4,8 @@ const ejs = require("ejs");
 const date = require(`${__dirname}/date.js`);
 const mongoose = require("mongoose");
 const _ = require('lodash');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Setup an instance of app
 const app = express();
@@ -16,9 +18,10 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static("public"));
 
 // Setup todolistDB database
+const password = process.env.MONGODB_PASSWORD;
 main().catch(err => console.log(err));
 async function main() {
-  await mongoose.connect("mongodb://localhost:27017/todolistDB");
+  await mongoose.connect(`mongodb+srv://admin-first:${password}@cluster0.hi5zx.mongodb.net/todolistDB`);
 };
 
 // Defines the port number

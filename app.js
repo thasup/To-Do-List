@@ -3,6 +3,7 @@ const express = require("express");
 const ejs = require("ejs");
 const date = require(`${__dirname}/date.js`);
 const mongoose = require("mongoose");
+const _ = require('lodash');
 
 // Setup an instance of app
 const app = express();
@@ -159,7 +160,7 @@ app.post("/delete", (req, res) => {
 });
 
 app.get("/:newList", (req, res) => {
-    const customListName = req.params.newList;
+    const customListName = _.capitalize(req.params.newList);
 
     // Find only one on database and return one obj.
     List.findOne({name: customListName}, (err, foundList) => {

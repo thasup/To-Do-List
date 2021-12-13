@@ -70,6 +70,10 @@ const defaultItems = [item1, item2, item3];
 //     }
 // });
 
+// Define day format
+const day = date.getDate();
+// console.log(day);
+
 // GET route for root
 app.get("/", (req, res) => {
 
@@ -87,11 +91,9 @@ app.get("/", (req, res) => {
             });
             res.redirect("/");
         } else {
-            const day = date.getDate();
             // mongoose.connection.close();
-
             res.render("list", {
-                listTitle: day,
+                listTitle: "Today",
                 newListItems: foundItems
             });
         };
@@ -101,15 +103,27 @@ app.get("/", (req, res) => {
 // POST route for retrieve input data from request
 app.post("/", (req, res) => {
     const itemName = req.body.newItem;
+    const listName = req.body.list;
     // console.log(item);
 
     const item = new Item({
         name: itemName
     });
 
-    item.save();
+    // console.log({listName, day});
 
-    res.redirect("/");
+    if (listName === "Today") {
+        console.log("equal");
+        item.save();
+        res.redirect("/");
+    } else {
+        // Find only one on database and return one obj.
+        List.findOne({name: listName}, (err, foundList) => {
+            foundList.items.push(item);
+            foundList.save();
+            res.redirect(`/${listName}`);
+        });
+    }
 });
 
 app.post("/delete", (req, res) => {
@@ -128,12 +142,12 @@ app.post("/delete", (req, res) => {
 app.get("/:newList", (req, res) => {
     const customListName = req.params.newList;
 
-    // Find only one on database and return one obj
-    List.findOne({name: customListName}, (err, foundLists) => {
+    // Find only one on database and return one obj.
+    List.findOne({name: customListName}, (err, foundList) => {
         if (!err) {
-            if (!foundLists) {
+            if (!foundList) {
                 // Create a new list
-                console.log("Doesn't exist!");
+                console.log("Doesn't exist. Create a new list.");
 
                 const list = new List({
                     name: customListName,
@@ -141,22 +155,18 @@ app.get("/:newList", (req, res) => {
                 });
             
                 list.save();
-                res.redirect(`/${customListName}`)
+                res.redirect(`/${customListName}`);
             } else {
                 // Show an existing list
-                console.log("Exist!");
+                console.log(`Exist! and redirect to localhost:3000/${customListName}`);
 
                 res.render("list", {
-                    listTitle: foundLists.name,
-                    newListItems: foundLists.items
+                    listTitle: foundList.name,
+                    newListItems: foundList.items
                 });
             }
         };
     });
-
-    
-
-    
 });
 
 // GET route for about page

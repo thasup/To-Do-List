@@ -127,16 +127,35 @@ app.post("/", (req, res) => {
 });
 
 app.post("/delete", (req, res) => {
-    const cheackDeleted = req.body.del;
+    const cheackItemId = req.body.del;
+    const listName = req.body.listName;
 
-    Item.findByIdAndRemove(cheackDeleted, (err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(`Successfully delete id:${cheackDeleted} task.`);
-            res.redirect("/");
-        }
-    });
+    if (listName === "Today") {
+        Item.findByIdAndRemove(cheackItemId, (err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`Successfully delete id:${cheackItemId} task.`);
+                res.redirect("/");
+            }
+        });
+    } else {
+        List.findOneAndUpdate(
+            // Find list that has name equal to "listName"
+            {name: listName},
+            // Find an array that object inside of this array has id equal to "cheackItemId" and delete this object
+            {$pull: {items: {_id: cheackItemId}}},
+            // Run callback function to redirect to that custom list page
+            (err, foundList) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(`Successfully delete id:${cheackItemId} task on ${listName} list.`);
+                    res.redirect(`/${listName}`);
+                }
+            }
+        );
+    }
 });
 
 app.get("/:newList", (req, res) => {
